@@ -34,6 +34,8 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
+#include "main.h"
+#include "stdint.h"
 #include "diskio.h"
 #include "ff.h"
 
