@@ -12,19 +12,57 @@ FATFS SDFatFs; /* File system object for SD card logical drive */
 FIL MyFile; /* File object */
 char SDPath[4]; /* SD card logical drive path */
 
-int main(void) {
-	HAL_Init();
-	SystemClock_Config();
-	MX_GPIO_Init();
-	MX_USART1_UART_Init();
-	MX_SDIO_SD_Init();
-
+void TestSDCard() {
 	FRESULT res; /* FatFs function common result code */
 	uint32_t byteswritten, bytesread; /* File write/read counts */
 	uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
 	uint8_t rtext[100];
 	FRESULT ret = 0;
-	/*##-1- Link the micro SD disk I/O driver ##################################*/
+
+	if (FATFS_LinkDriver(&SD_Driver, SDPath) != 0) {
+		Error_Handler();
+	}
+
+	ret = f_mkfs((TCHAR const*) SDPath, 0, 0);
+	if (ret != FR_OK) {
+		Error_Handler();
+	}
+
+	if (f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
+		/* 'STM32.TXT' file Open for write Error */
+		Error_Handler();
+	}
+	res = f_write(&MyFile, wtext, sizeof(wtext), (void *) &byteswritten);
+	if ((byteswritten == 0) || (res != FR_OK)) {
+		/* 'STM32.TXT' file Write or EOF Error */
+		Error_Handler();
+	}
+	f_close(&MyFile);
+
+	if (f_open(&MyFile, "STM32.TXT", FA_READ) != FR_OK) {
+		/* 'STM32.TXT' file Open for read Error */
+		Error_Handler();
+	}
+	res = f_read(&MyFile, rtext, sizeof(rtext), (UINT*) &bytesread);
+	if ((bytesread == 0) || (res != FR_OK)) {
+		/* 'STM32.TXT' file Read or EOF Error */
+		Error_Handler();
+	}
+	f_close(&MyFile);
+
+	if ((bytesread != byteswritten)) {
+		Error_Handler();
+	}
+
+	FATFS_UnLinkDriver(SDPath);
+}
+void TestSDCardExample() {
+	FRESULT res; /* FatFs function common result code */
+	uint32_t byteswritten, bytesread; /* File write/read counts */
+	uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
+	uint8_t rtext[100];
+	FRESULT ret = 0;
+
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) == 0) {
 		/*##-2- Register the file system object to the FatFs module ##############*/
 		if (f_mount(&SDFatFs, (TCHAR const*) SDPath, 0) != FR_OK) {
@@ -85,13 +123,21 @@ int main(void) {
 
 	/*##-11- Unlink the RAM disk I/O driver ####################################*/
 	FATFS_UnLinkDriver(SDPath);
+}
 
+int main(void) {
+	HAL_Init();
+	SystemClock_Config();
+	MX_GPIO_Init();
+	MX_USART1_UART_Init();
+	MX_SDIO_SD_Init();
+
+	TestSDCard();
 	while (1) {
 	}
 }
 
 void SystemClock_Config(void) {
-
 	RCC_OscInitTypeDef RCC_OscInitStruct;
 	RCC_ClkInitTypeDef RCC_ClkInitStruct;
 
