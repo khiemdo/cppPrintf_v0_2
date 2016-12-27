@@ -18,13 +18,12 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_USART1_UART_Init();
 	MX_SDIO_SD_Init();
-//	MX_FATFS_Init();
 
 	FRESULT res; /* FatFs function common result code */
 	uint32_t byteswritten, bytesread; /* File write/read counts */
 	uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
 	uint8_t rtext[100];
-
+	FRESULT ret = 0;
 	/*##-1- Link the micro SD disk I/O driver ##################################*/
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) == 0) {
 		/*##-2- Register the file system object to the FatFs module ##############*/
@@ -34,9 +33,8 @@ int main(void) {
 		} else {
 			/*##-3- Create a FAT file system (format) on the logical drive #########*/
 			/* WARNING: Formatting the uSD card will delete all content on the device */
-//			if (f_mkfs((TCHAR const*) SDPath, 0, 0) != FR_OK) {
-			if (0) {
-				/* FatFs Format Error */
+			ret = f_mkfs((TCHAR const*) SDPath, 0, 0);
+			if (ret != FR_OK) {
 				Error_Handler();
 			} else {
 				/*##-4- Create and Open a new text file object with write access #####*/
