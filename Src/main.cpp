@@ -17,7 +17,7 @@ void TestSDCard() {
 	uint32_t byteswritten, bytesread; /* File write/read counts */
 	uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
 	uint8_t rtext[100];
-	FRESULT ret = 0;
+	FRESULT ret = FR_OK;
 
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) != 0) {
 		Error_Handler();
@@ -32,7 +32,7 @@ void TestSDCard() {
 		/* 'STM32.TXT' file Open for write Error */
 		Error_Handler();
 	}
-	res = f_write(&MyFile, wtext, sizeof(wtext), (void *) &byteswritten);
+	res = f_write(&MyFile, wtext, sizeof(wtext), (UINT *) &byteswritten);
 	if ((byteswritten == 0) || (res != FR_OK)) {
 		/* 'STM32.TXT' file Write or EOF Error */
 		Error_Handler();
@@ -61,7 +61,7 @@ void TestSDCardExample() {
 	uint32_t byteswritten, bytesread; /* File write/read counts */
 	uint8_t wtext[] = "This is STM32 working with FatFs"; /* File write buffer */
 	uint8_t rtext[100];
-	FRESULT ret = 0;
+	FRESULT ret = FR_OK;
 
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) == 0) {
 		/*##-2- Register the file system object to the FatFs module ##############*/
@@ -83,7 +83,7 @@ void TestSDCardExample() {
 				} else {
 					/*##-5- Write data to the text file ################################*/
 					res = f_write(&MyFile, wtext, sizeof(wtext),
-							(void *) &byteswritten);
+							(UINT *) &byteswritten);
 
 					if ((byteswritten == 0) || (res != FR_OK)) {
 						/* 'STM32.TXT' file Write or EOF Error */
